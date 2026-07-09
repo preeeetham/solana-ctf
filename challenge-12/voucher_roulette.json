@@ -1,0 +1,128 @@
+{
+  "address": "Adom7b6AmcmaPPLsB5bz8KZYN5NfuqYWeHLQ9jYeWBbY",
+  "metadata": {
+    "name": "voucher_roulette",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "redeem_code",
+      "discriminator": [
+        48,
+        9,
+        65,
+        79,
+        177,
+        161,
+        81,
+        86
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        }
+      ],
+      "args": [
+        {
+          "name": "code",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "Flag0",
+      "msg": "S"
+    },
+    {
+      "code": 6001,
+      "name": "Flag1",
+      "msg": "T"
+    },
+    {
+      "code": 6002,
+      "name": "Flag2",
+      "msg": "_"
+    },
+    {
+      "code": 6003,
+      "name": "Flag3",
+      "msg": "F"
+    },
+    {
+      "code": 6004,
+      "name": "Flag4",
+      "msg": "L"
+    },
+    {
+      "code": 6005,
+      "name": "Flag5",
+      "msg": "A"
+    },
+    {
+      "code": 6006,
+      "name": "Flag6",
+      "msg": "G"
+    },
+    {
+      "code": 6007,
+      "name": "Flag7",
+      "msg": "{{"
+    },
+    {
+      "code": 6008,
+      "name": "Flag8",
+      "msg": "g"
+    },
+    {
+      "code": 6009,
+      "name": "Flag9",
+      "msg": "0"
+    },
+    {
+      "code": 6010,
+      "name": "Flag10",
+      "msg": "0"
+    },
+    {
+      "code": 6011,
+      "name": "Flag11",
+      "msg": "d"
+    },
+    {
+      "code": 6012,
+      "name": "Flag12",
+      "msg": "_"
+    },
+    {
+      "code": 6013,
+      "name": "Flag13",
+      "msg": "o"
+    },
+    {
+      "code": 6014,
+      "name": "Flag14",
+      "msg": "n"
+    },
+    {
+      "code": 6015,
+      "name": "Flag15",
+      "msg": "3"
+    },
+    {
+      "code": 6016,
+      "name": "Flag16",
+      "msg": "}}"
+    },
+    {
+      "code": 6017,
+      "name": "WrongLength",
+      "msg": "Wrong length - must be exactly 17 characters"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+import * as web3 from "@solana/web3.js";
+
+async function main() {
+  const connection = new web3.Connection("https://api.devnet.solana.com", "confirmed");
+  const programId = new web3.PublicKey("5zzgo53dmRCCwrxX3q7UDmssW26Gh4f7Y8J2mEE7Rvds");
+
+  console.log("Fetching signatures for address:", programId.toBase58());
+  const signatures = await connection.getSignaturesForAddress(programId, { limit: 20 });
+  console.log(`Found ${signatures.length} transactions:`);
+  
+  for (const sigInfo of signatures) {
+    console.log(`\nSignature: ${sigInfo.signature}`);
+    console.log(`Slot: ${sigInfo.slot}`);
+    console.log(`Err: ${JSON.stringify(sigInfo.err)}`);
+    
+    try {
+      const tx = await connection.getTransaction(sigInfo.signature, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+      if (tx) {
+        console.log("Logs:");
+        tx.meta?.logMessages?.forEach(log => console.log(`  ${log}`));
+      }
+    } catch (e) {
+      console.log("Could not fetch transaction details:", e);
+    }
+  }
+}
+
+main().catch(err => console.error(err));

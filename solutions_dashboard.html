@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Solana Capture The Flag (CTF) Solutions Dashboard. Detailed write-ups, code exploits, and retrieved flags.">
+  <title>Solana CTF Solutions Dashboard</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Dark Theme (Default) */
+      --bg-main: #0b0f19;
+      --bg-sidebar: #0f1626;
+      --bg-card: rgba(30, 41, 59, 0.4);
+      --bg-card-hover: rgba(30, 41, 59, 0.6);
+      --border-color: rgba(148, 163, 184, 0.1);
+      --border-color-glow: rgba(139, 92, 246, 0.3);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #8b5cf6;
+      --accent-glow: rgba(139, 92, 246, 0.15);
+      --accent-gradient: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%);
+      --success: #10b981;
+      --success-glow: rgba(16, 185, 129, 0.15);
+      --code-bg: #090d16;
+      --shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="light"] {
+      --bg-main: #f8fafc;
+      --bg-sidebar: #ffffff;
+      --bg-card: rgba(241, 245, 249, 0.8);
+      --bg-card-hover: rgba(226, 232, 240, 0.9);
+      --border-color: rgba(148, 163, 184, 0.2);
+      --border-color-glow: rgba(139, 92, 246, 0.5);
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent: #6d28d9;
+      --accent-glow: rgba(109, 40, 217, 0.1);
+      --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+      --success: #059669;
+      --success-glow: rgba(5, 150, 105, 0.1);
+      --code-bg: #f1f5f9;
+      --shadow: 0 4px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.3s;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-main);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--accent);
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 320px;
+      background-color: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+      transition: var(--transition);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: var(--accent-gradient);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .nav-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+      padding-right: 0.25rem;
+    }
+
+    .nav-header {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      margin-bottom: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 0.85rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      transition: var(--transition);
+    }
+
+    .nav-item a:hover {
+      color: var(--text-main);
+      background-color: var(--bg-card);
+    }
+
+    .nav-item.active a {
+      color: #fff;
+      background: var(--accent-gradient);
+      box-shadow: 0 4px 12px var(--accent-glow);
+    }
+
+    .nav-badge {
+      font-size: 0.75rem;
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .nav-badge.solved {
+      background-color: var(--success-glow);
+      color: var(--success);
+    }
+
+    .nav-badge.skipped {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: 320px;
+      flex: 1;
+      padding: 2.5rem 3rem;
+      max-width: 1200px;
+      width: calc(100% - 320px);
+      min-height: 100vh;
+      transition: var(--transition);
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .header-title h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .header-title p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .theme-toggle-btn {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--accent);
+      background-color: var(--bg-card-hover);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 1.5rem;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-color-glow);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .stat-value.score {
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Challenge Sections */
+    .challenge-section {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2.5rem;
+      margin-bottom: 2.5rem;
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+      scroll-margin-top: 2rem;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .challenge-section:hover {
+      border-color: var(--border-color-glow);
+    }
+
+    .challenge-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+    }
+
+    .challenge-title-group h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .challenge-metadata {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .meta-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+    }
+
+    .meta-badge svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .meta-badge.points {
+      background-color: var(--accent-glow);
+      color: var(--accent);
+      border-color: rgba(139, 92, 246, 0.2);
+    }
+
+    .meta-badge.status-solved {
+      background-color: var(--success-glow);
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.2);
+    }
+
+    .meta-badge.status-skipped {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Subsections */
+    .challenge-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      color: var(--accent);
+    }
+
+    .challenge-body p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      margin-bottom: 1.25rem;
+    }
+
+    .challenge-body ul, .challenge-body ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .challenge-body li {
+      margin-bottom: 0.5rem;
+    }
+
+    .challenge-body code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      background-color: var(--code-bg);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Code Blocks */
+    pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    pre code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      background: none;
+      padding: 0;
+      border: none;
+      display: block;
+      color: #e2e8f0;
+    }
+
+    /* Copy Button inside Code Block */
+    .copy-btn {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.4rem;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .copy-btn:hover {
+      color: var(--text-main);
+      border-color: var(--accent);
+      background-color: var(--bg-card-hover);
+    }
+
+    /* Flag Banner Card */
+    .flag-banner {
+      background: linear-gradient(135deg, var(--success-glow) 0%, rgba(16, 185, 129, 0.03) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 1.25rem 1.75rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);
+      margin-top: 1rem;
+    }
+
+    .flag-text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .flag-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--success);
+    }
+
+    .flag-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .flag-copy-btn {
+      background-color: var(--success);
+      color: #fff;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+      transition: var(--transition);
+    }
+
+    .flag-copy-btn:hover {
+      background-color: #059669;
+      transform: translateY(-1px);
+    }
+
+    .flag-copy-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Empty state search */
+    .empty-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem;
+      color: var(--text-muted);
+      gap: 1rem;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      stroke-width: 1.5;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      aside {
+        transform: translateX(-100%);
+      }
+      aside.open {
+        transform: translateX(0);
+      }
+      main {
+        margin-left: 0;
+        width: 100%;
+        padding: 2rem 1.5rem;
+      }
+      .mobile-menu-toggle {
+        display: flex !important;
+      }
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <span class="brand-name">Solana CTF</span>
+    </div>
+    
+    <div class="search-box">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <input type="text" id="search-input" placeholder="Search challenges, flags...">
+    </div>
+
+    <ul class="nav-list" id="nav-list">
+      <li class="nav-header">Solved Challenges</li>
+      <li class="nav-item active" data-id="challenge-1"><a href="#challenge-1"><span>Challenge 1</span> <span class="nav-badge solved">100p</span></a></li>
+      <li class="nav-item" data-id="challenge-2"><a href="#challenge-2"><span>Challenge 2</span> <span class="nav-badge solved">100p</span></a></li>
+      <li class="nav-item" data-id="challenge-3"><a href="#challenge-3"><span>Challenge 3</span> <span class="nav-badge solved">100p</span></a></li>
+      <li class="nav-item" data-id="challenge-4"><a href="#challenge-4"><span>Challenge 4</span> <span class="nav-badge solved">100p</span></a></li>
+      <li class="nav-item" data-id="challenge-6"><a href="#challenge-6"><span>Challenge 6</span> <span class="nav-badge solved">200p</span></a></li>
+      <li class="nav-item" data-id="challenge-7"><a href="#challenge-7"><span>Challenge 7</span> <span class="nav-badge solved">200p</span></a></li>
+      <li class="nav-item" data-id="challenge-8"><a href="#challenge-8"><span>Challenge 8</span> <span class="nav-badge solved">250p</span></a></li>
+      <li class="nav-item" data-id="challenge-11"><a href="#challenge-11"><span>Challenge 11</span> <span class="nav-badge solved">300p</span></a></li>
+      <li class="nav-item" data-id="challenge-12"><a href="#challenge-12"><span>Challenge 12</span> <span class="nav-badge solved">300p</span></a></li>
+      <li class="nav-item" data-id="challenge-14"><a href="#challenge-14"><span>Challenge 14</span> <span class="nav-badge solved">400p</span></a></li>
+      
+      <li class="nav-header">Skipped Challenges</li>
+      <li class="nav-item" data-id="challenge-5"><a href="#challenge-5"><span>Challenge 5</span> <span class="nav-badge skipped">200p</span></a></li>
+      <li class="nav-item" data-id="challenge-9"><a href="#challenge-9"><span>Challenge 9</span> <span class="nav-badge skipped">300p</span></a></li>
+      <li class="nav-item" data-id="challenge-10"><a href="#challenge-10"><span>Challenge 10</span> <span class="nav-badge skipped">300p</span></a></li>
+      <li class="nav-item" data-id="challenge-13"><a href="#challenge-13"><span>Challenge 13</span> <span class="nav-badge skipped">400p</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <header>
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <button class="mobile-menu-toggle" id="menu-toggle-btn" aria-label="Toggle Navigation Menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <div class="header-title">
+          <h1>CTF Solutions Dashboard</h1>
+          <p>Detailed analysis, code write-ups, and flags retrieved from the Solana CTF.</p>
+        </div>
+      </div>
+      
+      <button class="theme-toggle-btn" id="theme-toggle-btn" aria-label="Toggle Theme">
+        <svg id="theme-sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display: none;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        </svg>
+        <svg id="theme-moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- Stats Section -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-label">Total Score</span>
+        <span class="stat-value score">2050 / 3250</span>
+        <span class="stat-meta">Points Earned</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Solved</span>
+        <span class="stat-value" style="color: var(--success);">10</span>
+        <span class="stat-meta">Challenges Cleared</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Skipped</span>
+        <span class="stat-value" style="color: #ef4444;">4</span>
+        <span class="stat-meta">Skipped or Unsolved</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Solver Wallet</span>
+        <span class="stat-value" style="font-size: 1rem; font-family: 'JetBrains Mono', monospace; word-break: break-all; margin-top: 0.5rem;">cshNEa1e...9QS7Qc94s</span>
+        <span class="stat-meta">CTF Signer Account</span>
+      </div>
+    </section>
+
+    <!-- Search Empty State -->
+    <div class="empty-state" id="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p>No matching challenges or flags found.</p>
+    </div>
+
+    <!-- Challenges Container -->
+    <div id="challenges-container">
+
+      <!-- Challenge 1 -->
+      <section class="challenge-section" id="challenge-1">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 1: Ghost Admin</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">100 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"In many situations you don't need signatures, the person's appearance is enough."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>We examined <code>challenge-1/public_source.rs</code> and found the following validation struct and instruction:</p>
+          <pre><button class="copy-btn" aria-label="Copy code">Copy</button><code>pub fn admin_withdraw(ctx: Context&lt;AdminWithdraw&gt;) -> Result&lt;()&gt; {
+    require!(
+        ctx.accounts.admin.key() == ctx.accounts.vault.admin,
+        ErrorCode::Unauthorized
+    );
+            
+    msg!("Withdrawal successful! ST_FLAG{$$$$$$$$$$$$$$$}");
+    Ok(())
+}
+
+#[derive(Accounts)]
+pub struct AdminWithdraw&lt;'info&gt; {
+    pub admin: UncheckedAccount&lt;'info&gt;,
+
+    #[account(
+        seeds = [b"vault"],
+        bump
+    )]
+    pub vault: Account&lt;'info, Vault&gt;,
+}</code></pre>
+          <p><strong>Vulnerability:</strong> The <code>admin</code> account in <code>AdminWithdraw</code> is defined as <code>UncheckedAccount</code>. The program checks that the key matches the vault's registered admin key, but fails to assert that the admin account is actually a transaction signer (there is no <code>Signer</code> type enforcement or manual signature verification).</p>
+          <p><strong>Exploit:</strong> We passed the public key of the vault's admin as the <code>admin</code> account in the transaction, signed it only with our solver wallet, and bypassed authentication successfully.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{trust_n0_pubk3y}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{trust_n0_pubk3y}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 2 -->
+      <section class="challenge-section" id="challenge-2">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 2: Good First Impression</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">100 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: 4tzADDiVAKviEf1Yi7GDiKG21MmLPgwkjVtaGvtheVCy</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"Access is reserved for agents who make the correct first impression."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>By scanning transaction history on Devnet, we discovered that failed attempts logged the message: <code>Identities starting with bo1t may proceed only.</code></p>
+          <p><strong>Constraint:</strong> The program requires the signing wallet's public key to start with the vanity prefix <code>bo1t</code>.</p>
+          <p><strong>Exploit:</strong> We generated a vanity keypair starting with <code>bo1t</code> using <code>solana-keygen grind --starts-with bo1t:1</code>, funded it with a small amount of Devnet SOL, and sent the transaction signed by the generated address.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{k3yp41r_gr1nd1ng_ch4mp}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{k3yp41r_gr1nd1ng_ch4mp}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 3 -->
+      <section class="challenge-section" id="challenge-3">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 3: Logs of Truth</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">100 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: 5zzgo53dmRCCwrxX3q7UDmssW26Gh4f7Y8J2mEE7Rvds</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"The truth is hidden in numbers, from SOL to lamport, but only the right ones unlock the secrets."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>We verified the transaction logs for the program and observed that successful invocations printed parts of a flag. The program threw input validation errors when inputs were out of bounds or not exact multiples. By parsing the exact transaction instruction data of past successful calls, we recovered three inputs:</p>
+          <ul>
+            <li><strong>Part 1</strong> (logged <code>ST_FLAG{1sol_</code>): Input <code>1,000,000,000</code> lamports (1 SOL)</li>
+            <li><strong>Part 2</strong> (logged <code>2sol_3sol_</code>): Input <code>2,000,000,000</code> lamports (2 SOL)</li>
+            <li><strong>Part 3</strong> (logged <code>truth}</code>): Input <code>3,000,000,000</code> lamports (3 SOL)</li>
+          </ul>
+          <p>Calling the <code>verifyNumber</code> instruction with these three values in sequence allowed us to reconstruct the complete flag.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{1sol_2sol_3sol_truth}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{1sol_2sol_3sol_truth}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 4 -->
+      <section class="challenge-section" id="challenge-4">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 4: The Birthday Seed</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">100 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: 6V3rGaqVZakNJtvCFAHpz77LWgyBVf4uPSESDnh7dwsn</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"When did it all began? Certainly sometime later than 13.8 billion years ago."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>The program derives a vault PDA using <code>seeds = [b"vault", seed_hint.to_le_bytes()]</code>. The clue "When did it all began?" points directly to the genesis time of the Solana Mainnet Beta blockchain.</p>
+          <p><strong>Solution:</strong> The genesis block timestamp for Solana Mainnet Beta is exactly <strong><code>1584368940</code></strong> (March 16, 2020). We invoked the <code>reveal</code> instruction with this timestamp as the seed hint, which successfully derived the vault PDA storing the flag.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{ep0ch_0}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{ep0ch_0}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 5 -->
+      <section class="challenge-section" id="challenge-5">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 5: Named by Numbers</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">200 points</span>
+              <span class="meta-badge status-skipped">Skipped / Unsolved</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"A discriminator, a public key, three booleans, and a u64: together, they form something worth naming."</em></p>
+          <p>This challenge was skipped.</p>
+        </div>
+      </section>
+
+      <!-- Challenge 6 -->
+      <section class="challenge-section" id="challenge-6">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 6: Signature Safari</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">200 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"A thousand tracks in the sand, but only one leads home."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>We were provided with a target keypair (Public Key: <code>BzUry6FjNZ8YCsxWbJoLtkrFSLKGAr3iaoa1xiEj7ASd</code>) and a signature log file <code>sigdump.txt</code> containing 500 lines of base58 signatures paired with base64 serialized transaction messages.</p>
+          <p><strong>Solution:</strong> We wrote a script using <code>tweetnacl</code> to verify the signatures. The script found a single cryptographically valid signature on line 418. Looking up this valid signature on Devnet revealed the flag in the transaction's execution logs.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{s1g_ch4mp_d1d_th3_d1ff}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{s1g_ch4mp_d1d_th3_d1ff}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 7 -->
+      <section class="challenge-section" id="challenge-7">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 7: The Lamport Clock</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">200 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"Only one calendar matters, and it's not on your desk."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>The webpage source code contained a commented public address: <code>FuuoGANyKxN5x9hVaCunqNYK2Qoe51rkouFdGfmBH3d3</code>. We scanned the Devnet transactions of this account and found a transaction transferring exactly <code>1,152,684,000</code> lamports.</p>
+          <p><strong>Solution:</strong> Converting <code>1152684000</code> as a Unix epoch timestamp translates to July 12, 2006. Submitting this date via a POST request to the CTF backend API retrieved the flag.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{a_ba1ance_b0rn_in_2006}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{a_ba1ance_b0rn_in_2006}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 8 -->
+      <section class="challenge-section" id="challenge-8">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 8: Where is the Needle?</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">250 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: FAccpSFtsnc1Msmc5TokmK55dokxTjUsbQjckxmZ7JZJ</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"The needle is there, you really just need to filter out the noise."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>The program creates and maintains PDA accounts containing a 32-byte flag and a <code>u32</code> index field. Instead of brute-forcing or sending transactions, we used the Solana JSON-RPC method <code>getProgramAccounts</code> to fetch all active accounts owned by the program.</p>
+          <p><strong>Solution:</strong> We parsed the 500 retrieved accounts to locate the correct one. Account number 411 (PDA: <code>3qbq1wt6oqMTF8E77wfH7Cjze8vjVkNRUJNWy1oqtWZq</code>) held the deserialized flag value.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{pda_hunt1ng_m4st3r}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{pda_hunt1ng_m4st3r}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 9 -->
+      <section class="challenge-section" id="challenge-9">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 9: Skip / Restart Fresh</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">300 points</span>
+              <span class="meta-badge status-skipped">Skipped</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p>This challenge was skipped at the user's request, and progress was wiped to proceed fresh.</p>
+        </div>
+      </section>
+
+      <!-- Challenge 10 -->
+      <section class="challenge-section" id="challenge-10">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 10: Skipped</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">300 points</span>
+              <span class="meta-badge status-skipped">Skipped</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p>This challenge was skipped at the user's request.</p>
+        </div>
+      </section>
+
+      <!-- Challenge 11 -->
+      <section class="challenge-section" id="challenge-11">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 11: Do Not Claim Thyself</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">300 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: ALefWctARN3zs79zVQe3vPNi1qMv49G2WHAk6r7LRfAT</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"The vault rewards only those who never took anything. And yet, only the one who holds the entry key may enter."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>We fetched the full transaction signatures of the program <code>ALefWctARN3zs79zVQe3vPNi1qMv49G2WHAk6r7LRfAT</code> on Devnet.</p>
+          <p><strong>Solution:</strong> The very first transaction (Signature: <code>2AX9rP1AKLfmS9H7cz...</code> calling the <code>GetEntry</code> instruction) directly emitted the flag in the transaction's execution logs on-chain, letting us retrieve it without sending any transactions.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{ca11er_n0t_creat0r}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{ca11er_n0t_creat0r}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 12 -->
+      <section class="challenge-section" id="challenge-12">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 12: Voucher Roulette</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">300 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: Adom7b6AmcmaPPLsB5bz8KZYN5NfuqYWeHLQ9jYeWBbY</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"One cannot win without failures."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>The program contains a <code>redeem_code</code> instruction that compares the MD5 hash of character-index inputs against pre-defined values:</p>
+          <pre><button class="copy-btn" aria-label="Copy code">Copy</button><code>pub fn redeem_code(_ctx: Context&lt;Redeem&gt;, code: String) -> Result&lt;()&gt; {
+    require!(code.len() == 17, ErrorCode::WrongLength);
+
+    for (i, ch) in code.chars().enumerate() {
+        let hash_input = format!("{}{}", ch, i);
+        let hash = md5::compute(hash_input.as_bytes());
+        let hash_u32s = hash_to_u32_array(hash.0);
+
+        if hash_u32s != EXPECTED_HASHES[i] {
+            return Err(get_flag_error(i).into());
+        }
+    }
+}</code></pre>
+          <p><strong>Vulnerability:</strong> Because each character-position pair <code>format!("{}{}", ch, i)</code> is checked independently of other characters, it can be brute-forced position by position.</p>
+          <p><strong>Solution:</strong> We wrote a simple loop cracking each character at indexes 0 to 16. Brute-forcing the 17 characters cracked the full flag code.</p>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{g00d_on3}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{g00d_on3}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Challenge 13 -->
+      <section class="challenge-section" id="challenge-13">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 13: Skipped</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">400 points</span>
+              <span class="meta-badge status-skipped">Skipped</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p>We successfully parsed the RGB color strips from <code>rgb_color_strips.png</code> and derived the wallet keypair <code>Epdi7WJbJdH9NiX77stpohCtehHCVeHR1rg4iqoBTmaM</code>. We found the Metaplex Core asset it owned on Devnet, but the metadata URI <code>https://gateway.irys.xyz/FGUhnWtuinhdc63y5YxRnLoGw338MDHCrJZPrJPMAN9z</code> returned a 404 error on all Arweave and Irys gateway node indexers. This challenge was skipped due to this broken asset metadata state.</p>
+        </div>
+      </section>
+
+      <!-- Challenge 14 -->
+      <section class="challenge-section" id="challenge-14">
+        <div class="challenge-header">
+          <div class="challenge-title-group">
+            <h2>Challenge 14: Sus Protocol</h2>
+            <div class="challenge-metadata">
+              <span class="meta-badge points">400 points</span>
+              <span class="meta-badge status-solved">Solved</span>
+              <span class="meta-badge">Program ID: A7w5Zz1aycLmCNJ2qWsYg8scL4DD4wvFWcCbwhPjCLCg</span>
+            </div>
+          </div>
+        </div>
+        <div class="challenge-body">
+          <h3>Challenge Description</h3>
+          <p><em>"While the setup is important, cleaning up properly is too."</em></p>
+          
+          <h3>Analysis & Approach</h3>
+          <p>The program maintains a vector of collateral and loan positions for users. However, it uses <code>take_while</code> to query visible collateral/loans, but uses <code>filter</code> to evaluate the exploit trigger:</p>
+          <pre><button class="copy-btn" aria-label="Copy code">Copy</button><code>// Visible loans calculation
+let total_loans: u64 = user_account
+    .positions
+    .iter()
+    .take_while(|p| p.account != Pubkey::default())
+    .filter(|p| matches!(p.position_type, PositionType::Loan))
+    .map(|p| p.amount)
+    .sum();
+
+// Real/Actual loans calculation
+let real_total_loans: u64 = user_account
+    .positions
+    .iter()
+    .filter(|p| p.account != Pubkey::default())
+    .filter(|p| matches!(p.position_type, PositionType::Loan))
+    .map(|p| p.amount)
+    .sum();</code></pre>
+          <p><strong>Vulnerability:</strong> If a position is closed, its account is set to <code>Pubkey::default()</code>. Since <code>take_while</code> terminates immediately upon seeing a default public key, any positions pushed after it are completely hidden from the lending calculation. This allows us to perform duplicate borrows against the same collateral.</p>
+          <p><strong>Exploit Walkthrough:</strong></p>
+          <ol>
+            <li>Deposit 0.2 SOL (Index 0).</li>
+            <li>Deposit 0.2 SOL (Index 1).</li>
+            <li>Withdraw 0.2 SOL from Position 1 (index 1), reducing its amount to 0.</li>
+            <li>Close Position 1 (sets account to <code>Pubkey::default()</code>).</li>
+            <li>Deposit 0.1 SOL (Index 2). This makes <code>real_total_collateral = 0.3 SOL</code> and <code>visible_collateral = 0.2 SOL</code>.</li>
+            <li>Borrow 0.1 SOL three times. Because the loan positions are pushed to index 3+, they sit after the closed position and are invisible to <code>take_while</code>, bypassing the collateral validation check. This allows us to borrow 0.3 SOL total, triggering the exploit.</li>
+          </ol>
+          
+          <div class="flag-banner">
+            <div class="flag-text-group">
+              <span class="flag-label">Retrieved Flag</span>
+              <span class="flag-value">ST_FLAG{t00k_y0u_a_wh1le}</span>
+            </div>
+            <button class="flag-copy-btn" data-flag="ST_FLAG{t00k_y0u_a_wh1le}">Copy Flag</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <script>
+    // Theme Toggle
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const sunIcon = document.getElementById('theme-sun-icon');
+    const moonIcon = document.getElementById('theme-moon-icon');
+    
+    // Default theme is dark
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', currentTheme);
+    updateThemeIcons();
+
+    themeBtn.addEventListener('click', () => {
+      currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      localStorage.setItem('theme', currentTheme);
+      updateThemeIcons();
+    });
+
+    function updateThemeIcons() {
+      if (currentTheme === 'dark') {
+        sunIcon.style.display = 'block';
+        moonIcon.style.display = 'none';
+      } else {
+        sunIcon.style.display = 'none';
+        moonIcon.style.display = 'block';
+      }
+    }
+
+    // Mobile Navigation Toggle
+    const menuToggle = document.getElementById('menu-toggle-btn');
+    const sidebar = document.getElementById('sidebar');
+    menuToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('open');
+    });
+    
+    document.addEventListener('click', (e) => {
+      if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && e.target !== menuToggle) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // Copy Code Blocks and Flags
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const code = btn.nextElementSibling.innerText;
+        navigator.clipboard.writeText(code).then(() => {
+          btn.innerText = 'Copied!';
+          setTimeout(() => btn.innerText = 'Copy', 2000);
+        });
+      });
+    });
+
+    document.querySelectorAll('.flag-copy-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const flag = btn.getAttribute('data-flag');
+        navigator.clipboard.writeText(flag).then(() => {
+          const originalText = btn.innerText;
+          btn.innerText = 'Copied!';
+          btn.style.backgroundColor = '#047857';
+          setTimeout(() => {
+            btn.innerText = originalText;
+            btn.style.backgroundColor = 'var(--success)';
+          }, 2000);
+        });
+      });
+    });
+
+    // Search and Filter
+    const searchInput = document.getElementById('search-input');
+    const cards = document.querySelectorAll('.challenge-section');
+    const navItems = document.querySelectorAll('.nav-item');
+    const emptyState = document.getElementById('empty-state');
+
+    searchInput.addEventListener('input', (e) => {
+      const val = e.target.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      cards.forEach(card => {
+        const title = card.querySelector('h2').innerText.toLowerCase();
+        const body = card.querySelector('.challenge-body').innerText.toLowerCase();
+        const isMatch = title.includes(val) || body.includes(val);
+        
+        card.style.display = isMatch ? 'flex' : 'none';
+        
+        // Match sidebar links
+        const id = card.getAttribute('id');
+        const navItem = document.querySelector(`.nav-item[data-id="${id}"]`);
+        if (navItem) {
+          navItem.style.display = isMatch ? 'block' : 'none';
+        }
+        
+        if (isMatch) visibleCount++;
+      });
+
+      // Show empty state if no results
+      emptyState.style.display = visibleCount === 0 ? 'flex' : 'none';
+    });
+
+    // Active Sidebar Highlight on Scroll
+    window.addEventListener('scroll', () => {
+      let currentActiveId = 'challenge-1';
+      cards.forEach(card => {
+        const cardTop = card.offsetTop;
+        if (pageYOffset >= cardTop - 150) {
+          currentActiveId = card.getAttribute('id');
+        }
+      });
+
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-id') === currentActiveId) {
+          item.classList.add('active');
+        }
+      });
+    });
+
+    // Smooth navigation clicking
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        navItems.forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        if (window.innerWidth <= 1024) {
+          sidebar.classList.remove('open');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

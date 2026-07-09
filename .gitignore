@@ -1,0 +1,15 @@
+node_modules/
+.DS_Store
+*.log
+.gemini/
+.agents/
+
+# Keypairs & secrets
+ctf_wallet.json
+challenge-6/keypair.json
+challenge-2/bo1tK1o19JqSDUotT3xFuTDtUt45sGvNZXKnP3eexMF.json
+wallet.txt
+keypair.json
+*keypair*.json
+*wallet*.json
+*wallet*.txt

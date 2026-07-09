@@ -1,0 +1,38 @@
+{
+  "address": "4tzADDiVAKviEf1Yi7GDiKG21MmLPgwkjVtaGvtheVCy",
+  "metadata": {
+    "name": "good_first_impression",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "get_flag",
+      "discriminator": [
+        60,
+        47,
+        79,
+        236,
+        252,
+        145,
+        243,
+        53
+      ],
+      "accounts": [
+        {
+          "name": "signer",
+          "signer": true
+        }
+      ],
+      "args": []
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "UnauthorizedFlag",
+      "msg": "Can't get flag."
+    }
+  ]
+}

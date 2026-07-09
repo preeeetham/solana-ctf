@@ -1,0 +1,5 @@
+Named by Numbers
+200 points
+
+A discriminator, a public key, three booleans, and a u64: together, they form something worth naming.
+
