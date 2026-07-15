@@ -12,4 +12,9 @@ wallet.txt
 keypair.json
 *keypair*.json
 *wallet*.json
+
 *wallet*.txt
+
+# Local agent runs
+.gemini/
+.agents/
